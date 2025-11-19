@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plenēra – Planner Store</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --dark-plum: #743c5a;
+    --raspberry: #ce4f7f;
+    --soft-pink: #ffc2cd;
+    --baby-blue: #bac8f4;
+    --navy: #253668;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Lora', serif;
+    background: linear-gradient(180deg, var(--soft-pink) 0%, var(--baby-blue) 100%);
+    color: var(--dark-plum);
+  }
+
+  /* NAVIGATION */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--navy);
+    padding: 15px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Great Vibes', cursive;
+    font-size: 32px;
+    color: var(--soft-pink);
+  }
+
+  nav .links {
+    display: flex;
+    gap: 15px;
+  }
+
+  nav a {
+    color: var(--soft-pink);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  nav a:hover { color: var(--raspberry); }
+
+  /* MOBILE MENU */
+  @media (max-width: 700px) {
+    nav .links { 
+      display: none;
+      flex-direction: column;
+      background: var(--navy);
+      position: absolute;
+      right: 0;
+      top: 60px;
+      padding: 15px 20px;
+      width: 150px;
+      border-radius: 0 0 0 12px;
+    }
+    nav .links.show {
+      display: flex;
+    }
+
+    #menu-btn {
+      display: block;
+      color: var(--soft-pink);
+      font-size: 28px;
+      cursor: pointer;
+    }
+  }
+
+  #menu-btn {
+    display: none;
+  }
+
+  /* SECTIONS */
+  section {
+    display: none;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  section.active { display: block; }
+
+  h1 { color: var(--navy); }
+
+  .options {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+  }
+
+  .option {
+    background: rgba(255,255,255,0.65);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+
+  select {
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+  }
+
+  button {
+    margin-top: 30px;
+    background: var(--raspberry);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Lora';
+    font-size: 16px;
+  }
+
+  button:hover { background: var(--navy); }
+
+  /* CART */
+  #cart-items li {
+    background: white;
+    padding: 15px;
+    margin: 10px auto;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 450px;
+    text-align: left;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  /* POPUP TEMU */
+  .popup {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 18px 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: .4s;
+    text-align: center;
+  }
+
+  .popup.show { 
+    opacity: 1; 
+    pointer-events: all; 
+  }
+
+  .popup-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 14px;
+    background: var(--raspberry);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  /* CONTACTS */
+  #contacts {
+    background: rgba(37, 54, 104, 0.85);
+    width: 90%;
+    max-width: 500px;
+    padding: 30px;
+    border-radius: 12px;
+    margin: 40px auto;
+    color: white;
+  }
+
+  #contacts h1 { color: var(--soft-pink); }
+
+  footer {
+    background: rgba(37,54,104,0.9);
+    color: var(--soft-pink);
+    padding: 20px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- POPUP TEMU -->
+<div id="popup" class="popup">
+  Added to cart!<br>
+  <span onclick="showSection('cart')" class="popup-btn">Go to cart</span>
+  <span class="popup-btn">Continue</span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Plenēra</div>
+  <div id="menu-btn">☰</div>
+  <div class="links" id="menu">
+    <a onclick="showSection('home')">Home</a>
+    <a onclick="showSection('shop')">Shop</a>
+    <a onclick="showSection('customize')">Customize</a>
+    <a onclick="showSection('cart')">Cart</a>
+    <a onclick="showSection('contacts')">Contacts</a>
+  </div>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="active">
+  <h1>Welcome to Plenēra</h1>
+  <p>Elegant handcrafted planners made with love.</p>
+</section>
+
+<!-- SHOP -->
+<section id="shop">
+  <h1>Shop</h1>
+  <p>Choose your dream planner or customize your own!</p>
+</section>
+
+<!-- CUSTOMIZE -->
+<section id="customize">
+  <h1>Customize Your Planner</h1>
+
+  <div class="options">
+
+    <div class="option">
+      Page color
+      <select id="pageColorSelect">
+        <option value="White">White</option>
+        <option value="Cream">Cream</option>
+        <option value="Soft Pink">Soft Pink</option>
+      </select>
+    </div>
+
+    <div class="option">
+      Cover design
+      <select id="coverSelect">
+        <option value="Marble">Marble</option>
+        <option value="Minimalistic">Minimalistic</option>
+        <option value="Pastel Art">Pastel Art</option>
+      </select>
+    </div>
+
+    <div class="option">
+      Months
+      <select id="monthsSelect">
+        <option value="3 months">3 months</option>
+        <option value="6 months">6 months</option>
+      </select>
+    </div>
+
+    <div class="option">
+      Stickers
+      <select id="stickerSelect">
+        <option value="With stickers">With stickers</option>
+        <option value="Without stickers">Without stickers</option>
+      </select>
+    </div>
+
+    <div class="option">
+      Pen
+      <select id="penSelect">
+        <option value="With pen">With pen</option>
+        <option value="Without pen">Without pen</option>
+      </select>
+    </div>
+
+  </div>
+
+  <button onclick="addToCart()">Add to Cart</button>
+</section>
+
+<!-- CART -->
+<section id="cart">
+  <h1>Your Cart</h1>
+
+  <ul id="cart-items"></ul>
+
+  <h2>Total: <span id="total-price">0.00</span>€</h2>
+
+  <button>Proceed to Checkout</button>
+</section>
+
+<!-- CONTACTS -->
+<section id="contacts">
+  <h1>Contacts</h1>
+  <p>Email us:</p>
+  <p><a href="mailto:Plenera.planotajs@gmail.com" style="color:white; font-weight:600;">Plenera.planotajs@gmail.com</a></p>
+</section>
+
+<footer>
+  © 2025 Plenēra. All rights reserved.
+</footer>
+
+<script>
+let cart = [];
+
+document.getElementById("menu-btn").onclick = () => {
+  document.getElementById("menu").classList.toggle("show");
+};
+
+function showPopup() {
+    const popup = document.getElementById("popup");
+    popup.classList.add("show");
+    setTimeout(() => popup.classList.remove("show"), 3000);
+}
+
+function addToCart() {
+    const item = {
+        pageColor: document.getElementById("pageColorSelect").value,
+        cover: document.getElementById("coverSelect").value,
+        months: document.getElementById("monthsSelect").value,
+        stickers: document.getElementById("stickerSelect").value,
+        pen: document.getElementById("penSelect").value,
+        price: 12.99
+    };
+
+    cart.push(item);
+    updateCart();
+    showPopup();
+}
+
+function updateCart() {
+    const list = document.getElementById("cart-items");
+    const totalPrice = document.getElementById("total-price");
+    list.innerHTML = "";
+    
+    let sum = 0;
+
+    cart.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <strong>Planner #${index + 1}</strong><br>
+            Page color: ${item.pageColor}<br>
+            Cover: ${item.cover}<br>
+            Months: ${item.months}<br>
+            Stickers: ${item.stickers}<br>
+            Pen: ${item.pen}<br>
+            <strong>${item.price.toFixed(2)}€</strong>
+        `;
+        list.appendChild(li);
+
+        sum += item.price;
+    });
+
+    totalPrice.innerText = sum.toFixed(2);
+}
+
+function showSection(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+
+</body>
+</html>
