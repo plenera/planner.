@@ -1,566 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Plenēra – Planner Store</title>
 
-<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
 
 <style>
-  /* ========== COLORS & RESET ========== */
-  :root{
-    --dark-plum:#743c5a;
-    --raspberry:#ce4f7f;
-    --soft-pink:#ffe4eb;
-    --baby-blue:#dce3ff;
-    --navy:#253668;
-    --white:#ffffff;
-    --overlay: rgba(0,0,0,0.45);
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
+/* COLORS */
+:root {
+    --dark-plum: #743c5a;
+    --raspberry: #ce4f7f;
+    --soft-pink: #ffe4eb;
+    --baby-blue: #dce3ff;
+    --navy: #253668;
+    --white: #ffffff;
+}
+
+/* RESET */
+body {
+    margin: 0;
     font-family: 'Lora', serif;
-    background: linear-gradient(180deg,var(--soft-pink) 0%,var(--baby-blue) 100%);
-    color:var(--dark-plum);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    min-height:100vh;
-  }
+    background: var(--soft-pink);
+    color: var(--dark-plum);
+    overflow-x: hidden;
+}
 
-  /* ========== LAYOUT CONTAINER ========== */
-  .app {
-    max-width:1100px;
-    margin:0 auto;
-    min-height:100vh;
-    position:relative;
-    background: linear-gradient(180deg,var(--soft-pink) 0%,var(--baby-blue) 100%);
-  }
+/* MAIN MOBILE CONTAINER */
+.container {
+    max-width: 540px;
+    margin: auto;
+    background: linear-gradient(180deg, var(--soft-pink) 0%, var(--baby-blue) 100%);
+    min-height: 100vh;
+}
 
-  /* ========== NAVBAR (desktop) ========== */
-  nav.topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:20px;
-    padding:18px 28px;
-    background:var(--navy);
-    color:var(--soft-pink);
-    position:sticky;
-    top:0;
-    z-index:50;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-  }
+/* NAVBAR */
+nav {
+    position: sticky;
+    top: 0;
+    background: var(--navy);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--soft-pink);
+    z-index: 1000;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+}
 
-  .logo{
-    font-family:'Great Vibes', cursive;
-    font-size:30px;
-    color:var(--soft-pink);
-    line-height:1;
-  }
+.logo {
+    font-family: 'Great Vibes', cursive;
+    font-size: 34px;
+    color: var(--soft-pink);
+}
 
-  .navlinks{
-    display:flex;
-    gap:18px;
-    align-items:center;
-  }
+/* DESKTOP/LARGE MENU */
+.right-menu {
+    display: flex;
+    gap: 18px;
+}
 
-  .navlinks a{
-    color:var(--soft-pink);
-    text-decoration:none;
-    font-weight:600;
-    font-size:15px;
-    cursor:pointer;
-  }
-  .navlinks a:hover{ color:var(--raspberry); }
+.right-menu a {
+    color: var(--soft-pink);
+    text-decoration: none;
+    font-size: 16px;
+}
 
-  /* Desktop only: show full nav */
-  .nav-right { display:flex; gap:18px; align-items:center; }
+.right-menu a:hover { color: var(--raspberry); }
 
-  /* Burger (mobile/tablet) */
-  .burger {
-    display:none;
-    font-size:26px;
-    cursor:pointer;
-    user-select:none;
-  }
+/* BURGER ICON (RIGHT, PINK) */
+.burger {
+    display: none;
+    width: 32px;
+    height: 26px;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+}
 
-  /* ========== SIDE PANEL (mobile slide-out) ========== */
-  .overlay {
-    position:fixed;
-    inset:0;
-    background:var(--overlay);
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .28s ease;
-    z-index:45;
-  }
-  .overlay.show{
-    opacity:1;
-    pointer-events:auto;
-  }
+.burger span {
+    display: block;
+    height: 4px;
+    width: 100%;
+    background: var(--raspberry);
+    border-radius: 4px;
+    transition: .3s;
+}
 
-  .sidepanel {
-    position:fixed;
-    left:0;
-    top:0;
-    bottom:0;
-    width:290px;
-    max-width:80%;
-    background:var(--white);
-    transform:translateX(-110%);
-    transition:transform .32s cubic-bezier(.2,.9,.2,1);
-    z-index:60;
-    padding:22px;
-    box-shadow: 6px 0 24px rgba(0,0,0,0.18);
-    display:flex;
-    flex-direction:column;
-    gap:18px;
-  }
-  .sidepanel.show{ transform:translateX(0); }
+/* MOBILE SLIDE MENU (RIGHT SIDE) */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -260px;
+    width: 240px;
+    height: 100vh;
+    background: var(--navy);
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    transition: .35s ease;
+    z-index: 999;
+}
 
-  .sidepanel .close-btn{
-    align-self:flex-end;
-    background:none;
-    border:none;
-    font-size:22px;
-    cursor:pointer;
-  }
-  .sidepanel .menu{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    margin-top:6px;
-  }
-  .sidepanel .menu a{
-    text-decoration:none;
-    color:var(--navy);
-    font-weight:600;
-    font-size:18px;
-    padding:8px 6px;
-    border-radius:8px;
-  }
-  .sidepanel .menu a:hover{ background:rgba(0,0,0,0.04); }
+.mobile-menu a {
+    color: var(--soft-pink);
+    text-decoration: none;
+    font-size: 18px;
+}
 
-  /* ========== CONTENT SECTIONS ========== */
-  main{
-    padding:26px;
-  }
-  section{
-    display:none;
-    padding:18px 8px;
-    animation:fade .32s ease;
-  }
-  section.active{ display:block; }
+.mobile-menu.open {
+    right: 0;
+}
 
-  @keyframes fade{
-    from{ opacity:0; transform:translateY(8px) }
-    to{ opacity:1; transform:translateY(0) }
-  }
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: .3s;
+}
 
-  h1{ text-align:center; color:var(--navy); margin:0 0 12px 0; }
+.overlay.show {
+    opacity: 1;
+    pointer-events: all;
+}
 
-  /* Customize options */
-  .options{
-    margin-top:18px;
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:14px;
-  }
-  .option{
-    background:var(--white);
-    padding:16px;
-    border-radius:12px;
-    box-shadow:0 6px 16px rgba(0,0,0,0.08);
-    color:var(--dark-plum);
-    font-weight:600;
-  }
-  select{
-    margin-top:8px;
-    width:100%;
-    padding:10px;
-    border-radius:8px;
-    border:1px solid rgba(0,0,0,0.06);
-    background:var(--soft-pink);
-    font-family: inherit;
-  }
+/* SHOW BURGER ON MOBILE/TABLET */
+@media (max-width: 900px) {
+    .burger { display: flex; }
+    .right-menu { display: none; }
+}
 
-  /* Buttons */
-  .btn{
-    display:inline-block;
-    background:var(--raspberry);
-    color:white;
-    border:none;
-    padding:12px 18px;
-    border-radius:12px;
-    cursor:pointer;
-    box-shadow:0 6px 16px rgba(0,0,0,0.12);
-    font-weight:700;
-  }
-  .btn:hover{ background:var(--navy); }
+/* SECTIONS */
+section {
+    display: none;
+    padding: 25px;
+    animation: fade .4s ease;
+}
 
-  /* Cart list */
-  #cart-items{
-    padding:0;
-    margin:12px 0 18px 0;
-  }
-  #cart-items li{
-    list-style:none;
-    background:var(--white);
-    padding:14px;
-    margin:10px 0;
-    border-radius:12px;
-    box-shadow:0 6px 12px rgba(0,0,0,0.06);
-    color:var(--navy);
-  }
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-  /* Popup (Temu-like) */
-  .popup{
-    position:fixed;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:22px;
-    background:var(--white);
-    padding:14px 18px;
-    border-radius:14px;
-    box-shadow:0 8px 22px rgba(0,0,0,0.18);
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .24s ease;
-    z-index:70;
-    text-align:center;
-  }
-  .popup.show{ opacity:1; pointer-events:auto; }
-  .popup .popup-row{ margin-top:8px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
-  .popup .popup-row .popup-btn{ background:var(--raspberry); color:white; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:700; }
+section.active { display: block; }
 
-  /* Contacts box */
-  #contacts-box{
-    background:var(--navy);
-    color:white;
-    padding:28px;
-    border-radius:14px;
-    width:90%;
-    max-width:760px;
-    margin:12px auto;
-    text-align:center;
-  }
-  #contacts-box a{ color:white; font-weight:700; text-decoration:none; }
+h1 {
+    text-align: center;
+    color: var(--navy);
+}
 
-  /* Footer */
-  footer{
-    text-align:center;
-    color:var(--soft-pink);
-    background:transparent;
-    padding:28px 0 60px 0;
-  }
+/* CUSTOMIZE OPTIONS */
+.options {
+    margin-top: 25px;
+    display: grid;
+    gap: 15px;
+}
 
-  /* ========== RESPONSIVE RULES ========== */
+.option {
+    background: var(--white);
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
 
-  /* Desktop large: show full nav links and hide burger */
-  @media (min-width:1025px){
-    .burger{ display:none; }
-    .navlinks{ display:flex; }
-    .sidepanel{ display:none; }
-    .overlay{ display:none; }
-    main{ padding:36px; }
-    .app{ padding-bottom:40px; }
-  }
+select {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: var(--soft-pink);
+}
 
-  /* Tablet: show burger but maybe show nav links too (hybrid) */
-  @media (min-width:700px) and (max-width:1024px){
-    .burger{ display:block; }
-    .navlinks{ display:flex; gap:12px; }
-    /* But keep sidepanel available */
-  }
+/* BUTTON */
+button {
+    width: 90%;
+    margin: 30px auto;
+    display: block;
+    padding: 14px;
+    background: var(--raspberry);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
 
-  /* Mobile: hide inline navlinks, show burger */
-  @media (max-width:699px){
-    .navlinks{ display:none; }
-    .burger{ display:block; color:var(--soft-pink) }
-    main{ padding:20px 14px 80px 14px; }
-  }
+button:hover {
+    background: var(--navy);
+}
 
-  /* small tweaks */
-  @media (max-width:420px){
-    .sidepanel{ width:85%; max-width:260px; }
-    .logo{ font-size:26px; }
-  }
+/* CART ITEMS */
+#cart-items li {
+    list-style: none;
+    background: white;
+    padding: 18px;
+    margin: 12px 0;
+    border-radius: 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+}
+
+/* POPUP */
+.popup {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 18px 26px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: .4s ease;
+    text-align: center;
+    z-index: 1200;
+}
+
+.popup.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.popup-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: var(--raspberry);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* CONTACTS */
+#contacts-box {
+    background: var(--navy);
+    padding: 35px;
+    margin: 25px auto;
+    border-radius: 18px;
+    width: 90%;
+    color: white;
+}
+
+#contacts-box h1 { color: var(--soft-pink); }
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 20px;
+    background: var(--navy);
+    color: var(--soft-pink);
+    margin-top: 40px;
+}
 </style>
 </head>
 <body>
-  <div class="app" id="appRoot">
 
-    <!-- TOP NAV -->
-    <nav class="topbar" role="navigation" aria-label="Main navigation">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button class="burger" id="burgerBtn" aria-label="Open menu" title="Menu">☰</button>
-        <div class="logo">Plenēra</div>
-      </div>
+<div class="container">
 
-      <div class="nav-right" style="display:flex;align-items:center;gap:18px;">
-        <div class="navlinks" id="desktopNav">
-          <a data-target="home">Home</a>
-          <a data-target="customize">Customize</a>
-          <a data-target="cart">Cart</a>
-          <a data-target="contacts">Contacts</a>
-        </div>
-      </div>
-    </nav>
+<!-- OVERLAY -->
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
-    <!-- SIDE PANEL (slide-out) -->
-    <div class="overlay" id="overlay" tabindex="-1" aria-hidden="true"></div>
+<!-- MOBILE MENU -->
+<div id="mobileMenu" class="mobile-menu">
+    <a onclick="showSection('home'); toggleMenu()">Home</a>
+    <a onclick="showSection('customize'); toggleMenu()">Customize</a>
+    <a onclick="showSection('cart'); toggleMenu()">Cart</a>
+    <a onclick="showSection('contacts'); toggleMenu()">Contacts</a>
+</div>
 
-    <aside class="sidepanel" id="sidepanel" aria-hidden="true">
-      <button class="close-btn" id="closePanelBtn" aria-label="Close menu">✕</button>
-      <div style="font-weight:800; font-size:20px; color:var(--navy)">Plenēra</div>
-      <nav class="menu" aria-label="Mobile menu">
-        <a data-target="home">Home</a>
-        <a data-target="customize">Customize</a>
-        <a data-target="cart">Cart</a>
-        <a data-target="contacts">Contacts</a>
-      </nav>
-    </aside>
+<!-- POPUP -->
+<div id="popup" class="popup">
+  Added to cart!<br>
+  <span class="popup-btn" onclick="showSection('cart')">Go to cart</span>
+  <span class="popup-btn" onclick="hidePopup()">Continue</span>
+</div>
 
-    <!-- POPUP -->
-    <div id="popup" class="popup" role="status" aria-live="polite">
-      <div>Added to cart!</div>
-      <div class="popup-row">
-        <button class="popup-btn" onclick="navigate('cart')">Go to cart</button>
-        <button class="popup-btn" onclick="hidePopup()">Continue</button>
-      </div>
-    </div>
+<!-- NAV -->
+<nav>
+  <div class="logo">Plenēra</div>
 
-    <!-- MAIN CONTENT -->
-    <main>
-      <!-- HOME -->
-      <section id="home" class="active" aria-labelledby="homeTitle">
-        <h1 id="homeTitle">Welcome to Plenēra</h1>
-        <p style="text-align:center; max-width:860px; margin:8px auto 18px auto;">
-          Handmade planners, elegant designs, fully customizable. Choose a planner, customize it and we will prepare it for you with love.
-        </p>
-      </section>
-
-      <!-- CUSTOMIZE -->
-      <section id="customize" aria-labelledby="customTitle">
-        <h1 id="customTitle">Create Your Planner</h1>
-        <p style="text-align:center; max-width:760px; margin:0 auto 16px auto;">
-          Pick options below and add to cart.
-        </p>
-
-        <div class="options" aria-live="polite">
-          <div class="option">
-            Page color
-            <select id="pageColorSelect" aria-label="Page color">
-              <option value="White">White</option>
-              <option value="Cream">Cream</option>
-              <option value="Soft Pink">Soft Pink</option>
-            </select>
-          </div>
-
-          <div class="option">
-            Cover design
-            <select id="coverSelect" aria-label="Cover design">
-              <option value="Marble">Marble</option>
-              <option value="Minimalistic">Minimalistic</option>
-              <option value="Pastel Art">Pastel Art</option>
-            </select>
-          </div>
-
-          <div class="option">
-            Months
-            <select id="monthsSelect" aria-label="Months">
-              <option value="3 months">3 months</option>
-              <option value="6 months">6 months</option>
-            </select>
-          </div>
-
-          <div class="option">
-            Stickers
-            <select id="stickerSelect" aria-label="Stickers">
-              <option value="With stickers">With stickers</option>
-              <option value="Without stickers">Without stickers</option>
-            </select>
-          </div>
-
-          <div class="option">
-            Pen
-            <select id="penSelect" aria-label="Pen">
-              <option value="With pen">With pen</option>
-              <option value="Without pen">Without pen</option>
-            </select>
-          </div>
-        </div>
-
-        <div style="text-align:center;">
-          <button class="btn" onclick="addToCart()">Add to Cart</button>
-        </div>
-      </section>
-
-      <!-- CART -->
-      <section id="cart" aria-labelledby="cartTitle">
-        <h1 id="cartTitle">Your Cart</h1>
-        <ul id="cart-items" aria-live="polite"></ul>
-        <h2 style="text-align:center; margin-top:6px;">Total: <span id="total-price">0.00</span>€</h2>
-        <div style="text-align:center; margin-top:14px;">
-          <button class="btn">Proceed to Checkout</button>
-        </div>
-      </section>
-
-      <!-- CONTACTS -->
-      <section id="contacts" aria-labelledby="contactsTitle">
-        <h1 id="contactsTitle">Contacts</h1>
-        <div id="contacts-box">
-          <p style="margin:0 0 8px 0;">Email:</p>
-          <p style="margin:0;"><a href="mailto:Plenera.planotajs@gmail.com">Plenera.planotajs@gmail.com</a></p>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      © 2025 Plenēra. All rights reserved.
-    </footer>
+  <div class="burger" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 
+  <div class="right-menu">
+    <a onclick="showSection('home')">Home</a>
+    <a onclick="showSection('customize')">Customize</a>
+    <a onclick="showSection('cart')">Cart</a>
+    <a onclick="showSection('contacts')">Contacts</a>
+  </div>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="active">
+  <h1>Welcome to Plenēra</h1>
+  <p style="text-align:center;">Handmade planners, elegant designs, fully customizable.</p>
+</section>
+
+<!-- CUSTOMIZE -->
+<section id="customize">
+  <h1>Create Your Planner</h1>
+
+  <div class="options">
+
+    <div class="option">
+      Page color
+      <select id="pageColorSelect">
+        <option value="White">White</option>
+        <option value="Cream">Cream</option>
+        <option value="Soft Pink">Soft Pink</option>
+      </select>
+    </div>
+
+    <div class="option">
+      Cover design
+      <select id="coverSelect">
+        <option value="Marble">Marble</option>
+        <option value="Minimalistic">Minimalistic</option>
+        <option value="Pastel Art">Pastel Art</option>
+      </select>
+    </div>
+
+    <div class="option">
+      Months
+      <select id="monthsSelect">
+        <option value="3 months">3 months</option>
+        <option value="6 months">6 months</option>
+      </select>
+    </div>
+
+    <div class="option">
+      Stickers
+      <select id="stickerSelect">
+        <option value="With stickers">With stickers</option>
+        <option value="Without stickers">Without stickers</option>
+      </select>
+    </div>
+
+    <div class="option">
+      Pen
+      <select id="penSelect">
+        <option value="With pen">With pen</option>
+        <option value="Without pen">Without pen</option>
+      </select>
+    </div>
+
+  </div>
+
+  <button onclick="addToCart()">Add to Cart</button>
+</section>
+
+<!-- CART -->
+<section id="cart">
+  <h1>Your Cart</h1>
+  <ul id="cart-items"></ul>
+  <h2 style="text-align:center;">Total: <span id="total-price">0.00</span>€</h2>
+  <button>Proceed to Checkout</button>
+</section>
+
+<!-- CONTACTS -->
+<section id="contacts">
+  <div id="contacts-box">
+    <h1>Contacts</h1>
+    <p>Email:</p>
+    <p><a href="mailto:Plenera.planotajs@gmail.com" style="color:white; font-weight:600;">Plenera.planotajs@gmail.com</a></p>
+  </div>
+</section>
+
+<footer>
+  © 2025 Plenēra. All rights reserved.
+</footer>
+
+</div>
+
 <script>
-  /* ======== State ======== */
-  let cart = [];
+let cart = [];
 
-  /* ======== Side panel open/close (with overlay) ======== */
-  const burgerBtn = document.getElementById('burgerBtn');
-  const sidepanel = document.getElementById('sidepanel');
-  const overlay = document.getElementById('overlay');
-  const closePanelBtn = document.getElementById('closePanelBtn');
+function toggleMenu() {
+    const menu = document.getElementById("mobileMenu");
+    const overlay = document.getElementById("overlay");
+    menu.classList.toggle("open");
+    overlay.classList.toggle("show");
+}
 
-  function openPanel(){
-    sidepanel.classList.add('show');
-    overlay.classList.add('show');
-    sidepanel.setAttribute('aria-hidden','false');
-    overlay.setAttribute('aria-hidden','false');
-    // lock body scroll on mobile when open
-    document.body.style.overflow = 'hidden';
-  }
-  function closePanel(){
-    sidepanel.classList.remove('show');
-    overlay.classList.remove('show');
-    sidepanel.setAttribute('aria-hidden','true');
-    overlay.setAttribute('aria-hidden','true');
-    document.body.style.overflow = '';
-  }
+function hidePopup() {
+    document.getElementById("popup").classList.remove("show");
+}
 
-  burgerBtn.addEventListener('click', openPanel);
-  closePanelBtn.addEventListener('click', closePanel);
-  overlay.addEventListener('click', closePanel);
-  window.addEventListener('keydown', (e) => { if(e.key === 'Escape') closePanel(); });
+function showPopup() {
+    const popup = document.getElementById("popup");
+    popup.classList.add("show");
+    setTimeout(() => popup.classList.remove("show"), 3000);
+}
 
-  /* ======== Navigation (hash-based) ======== */
-  function navigate(id){
-    // set hash without double pushing if same
-    if(location.hash.replace('#','') !== id) location.hash = id;
-    showSection(id);
-    closePanel();
-  }
-
-  // common handler for nav links (desktop and sidepanel)
-  document.querySelectorAll('[data-target]').forEach(a=>{
-    a.addEventListener('click', (e)=>{
-      const id = a.getAttribute('data-target');
-      navigate(id);
-    });
-  });
-
-  function showSection(id){
-    document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById(id);
-    if(el) el.classList.add('active');
-    // hide popup when navigating
-    hidePopup();
-    // update focused element for accessibility
-    el && el.querySelector('h1') && el.querySelector('h1').focus && el.querySelector('h1').focus();
-  }
-
-  // On load/open: read hash
-  window.addEventListener('load', ()=>{
-    const start = location.hash.replace('#','') || 'home';
-    // if section exists, show it; otherwise fallback to home
-    if(document.getElementById(start)) showSection(start);
-    else showSection('home');
-  });
-
-  // handle back/forward
-  window.addEventListener('hashchange', ()=> {
-    const id = location.hash.replace('#','') || 'home';
-    if(document.getElementById(id)) showSection(id);
-  });
-
-  /* ======== Popup (Temu style) ======== */
-  const popupEl = document.getElementById('popup');
-  function showPopup(){
-    popupEl.classList.add('show');
-    setTimeout(()=> popupEl.classList.remove('show'), 3000);
-  }
-  function hidePopup(){
-    popupEl.classList.remove('show');
-  }
-
-  /* ======== Cart functions ======== */
-  function addToCart(){
+function addToCart() {
     const item = {
-      pageColor: document.getElementById('pageColorSelect').value,
-      cover: document.getElementById('coverSelect').value,
-      months: document.getElementById('monthsSelect').value,
-      stickers: document.getElementById('stickerSelect').value,
-      pen: document.getElementById('penSelect').value,
-      price: 12.99
+        pageColor: document.getElementById("pageColorSelect").value,
+        cover: document.getElementById("coverSelect").value,
+        months: document.getElementById("monthsSelect").value,
+        stickers: document.getElementById("stickerSelect").value,
+        pen: document.getElementById("penSelect").value,
+        price: 12.99
     };
+
     cart.push(item);
     updateCart();
     showPopup();
-  }
+}
 
-  function updateCart(){
-    const list = document.getElementById('cart-items');
-    const totalPrice = document.getElementById('total-price');
-    list.innerHTML = '';
+function updateCart() {
+    const list = document.getElementById("cart-items");
+    const totalPrice = document.getElementById("total-price");
+    list.innerHTML = "";
+    
     let sum = 0;
+
     cart.forEach((item, index) => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <strong>Planner #${index+1}</strong><br>
-        Page color: ${item.pageColor}<br>
-        Cover: ${item.cover}<br>
-        Months: ${item.months}<br>
-        Stickers: ${item.stickers}<br>
-        Pen: ${item.pen}<br>
-        <strong>${item.price.toFixed(2)}€</strong>
-      `;
-      list.appendChild(li);
-      sum += item.price;
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <strong>Planner #${index + 1}</strong><br>
+            Page color: ${item.pageColor}<br>
+            Cover: ${item.cover}<br>
+            Months: ${item.months}<br>
+            Stickers: ${item.stickers}<br>
+            Pen: ${item.pen}<br>
+            <strong>${item.price.toFixed(2)}€</strong>
+        `;
+        list.appendChild(li);
+
+        sum += item.price;
     });
+
     totalPrice.innerText = sum.toFixed(2);
-  }
+}
 
-  /* ======== Accessibility: allow focusing H1 when shown ======== */
-  document.querySelectorAll('main section h1').forEach(h=>{
-    h.setAttribute('tabindex','-1');
-  });
-
-  /* ======== Optional: persist cart in session (simple) ======== */
-  // load saved
-  try{
-    const saved = sessionStorage.getItem('plenCart');
-    if(saved){ cart = JSON.parse(saved); updateCart(); }
-  }catch(e){ /* ignore */ }
-
-  // save on change
-  const origUpdate = updateCart;
-  updateCart = function(){
-    origUpdate();
-    try{ sessionStorage.setItem('plenCart', JSON.stringify(cart)); }catch(e){}
-  };
-
+function showSection(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  hidePopup();
+  toggleMenu(false);
+}
 </script>
+
 </body>
 </html>
+
