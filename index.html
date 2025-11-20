@@ -1,270 +1,668 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plenēra</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Plenēra – Planner Store</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
 
 <style>
-/* ----------- GENERAL ----------- */
-body {
-    margin: 0;
-    font-family: 'Georgia';
-    background: linear-gradient(#ffe5ef, #e1d4ff);
+/* === COLORS & RESET (Оставлены твои цвета/шрифты) === */
+:root{
+  --dark-plum:#743c5a;
+  --raspberry:#ce4f7f;
+  --soft-pink:#ffe4eb;
+  --baby-blue:#dce3ff;
+  --navy:#253668;
+  --white:#ffffff;
 }
 
-/* ----------- HEADER ----------- */
-header {
-    background: #1b2a52;
-    padding: 18px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Lora', serif;
+  background:var(--soft-pink);
+  color:var(--dark-plum);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
 }
 
-.logo {
-    font-size: 32px;
-    color: #ffbad7;
-    font-family: "Brush Script MT", cursive;
+/* main mobile container */
+.container{
+  max-width:540px;
+  margin:auto;
+  background:linear-gradient(180deg,var(--soft-pink) 0%, var(--baby-blue) 100%);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-/* ----------- BURGER MENU ----------- */
-.burger {
-    width: 32px;
-    height: 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
+/* NAV */
+nav{
+  position:sticky;
+  top:0;
+  background:var(--navy);
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:var(--soft-pink);
+  z-index:1000;
+  box-shadow:0 3px 12px rgba(0,0,0,0.25);
 }
 
-.burger span {
-    display: block;
-    height: 4px;
-    border-radius: 4px;
-    background: #ff7bac; /* розовый оттенок */
-    transition: 0.3s;
+.logo{ font-family:'Great Vibes', cursive; font-size:34px; color:var(--soft-pink); }
+
+.right-menu{ display:flex; gap:16px; align-items:center; }
+.right-menu a{ color:var(--soft-pink); text-decoration:none; font-size:15px; cursor:pointer; }
+.right-menu a:hover{ color:var(--raspberry); }
+
+.user-badge{
+  font-size:13px;
+  color:var(--soft-pink);
+  opacity:0.95;
 }
 
-/* ----------- NAVIGATION ----------- */
-nav {
-    position: fixed;
-    top: 0;
-    right: -70%;
-    width: 70%;
-    height: 100%;
-    background: #1b2a52;
-    padding-top: 80px;
-    transition: 0.3s;
+/* small cart badge */
+.cart-badge{
+  display:inline-block;
+  background:var(--raspberry);
+  color:#fff;
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:12px;
+  margin-left:8px;
+  vertical-align:middle;
 }
 
-nav a {
-    display: block;
-    padding: 18px 30px;
-    color: #ffbad7;
-    text-decoration: none;
-    font-size: 20px;
+/* BURGER */
+.burger{ display:none; width:34px; height:26px; flex-direction:column; justify-content:space-between; cursor:pointer;}
+.burger span{ height:4px; width:100%; background:var(--raspberry); border-radius:4px; display:block; transition:0.25s; }
+
+/* MOBILE MENU */
+.mobile-menu{
+  position:fixed;
+  top:0;
+  right:-280px;
+  width:260px;
+  height:100vh;
+  background:var(--navy);
+  padding:34px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  transition:0.35s ease;
+  z-index:1200;
+}
+.mobile-menu.open{ right:0; }
+
+.mobile-menu a{ color:var(--soft-pink); text-decoration:none; font-size:18px; cursor:pointer; }
+.mobile-sub{ margin-left:10px; display:flex; flex-direction:column; gap:10px; padding-left:6px; }
+
+/* overlay */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  opacity:0;
+  pointer-events:none;
+  transition:0.25s;
+  z-index:1100;
+}
+.overlay.show{ opacity:1; pointer-events:all; backdrop-filter: blur(2px); }
+
+/* responsive show burger */
+@media (max-width:900px){
+  .burger{ display:flex; }
+  .right-menu{ display:none; }
 }
 
-nav.open {
-    right: 0;
+/* SECTIONS */
+section{ display:none; padding:22px; animation:fade .35s ease; }
+@keyframes fade{ from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+section.active{ display:block; }
+
+h1{ text-align:center; color:var(--navy); margin:6px 0 8px; }
+
+/* CONTENT BLOCKS (keep design) */
+.options{ margin-top:18px; display:grid; gap:14px; }
+.option{
+  background:var(--white);
+  padding:16px;
+  border-radius:12px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.12);
 }
 
-/* ----------- SECTIONS ----------- */
-.section {
-    padding: 40px 20px;
-    text-align: center;
+select,input[type="text"],input[type="email"],input[type="tel"]{
+  width:100%;
+  margin-top:8px;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  background:var(--soft-pink);
+  font-family:inherit;
 }
 
-h1, h2 {
-    color: #1b2a52;
+/* buttons */
+button.primary{
+  width:90%;
+  margin:26px auto;
+  display:block;
+  padding:13px;
+  background:var(--raspberry);
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  font-size:17px;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.18);
+}
+button.primary:hover{ background:var(--navy); }
+
+/* product card */
+.product{
+  background:var(--white);
+  padding:16px;
+  border-radius:14px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.12);
+  margin:12px 0;
+}
+.product h3{ margin:4px 0 10px; color:var(--dark-plum); }
+
+/* cart items */
+#cart-items li{
+  list-style:none;
+  background:var(--white);
+  padding:14px;
+  margin:10px 0;
+  border-radius:12px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.10);
 }
 
-/* ----------- CARDS ----------- */
-.card {
-    max-width: 600px;
-    margin: 20px auto;
-    background: white;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+/* popup */
+.popup{
+  position:fixed;
+  bottom:22px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--white);
+  padding:12px 18px;
+  border-radius:12px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.2);
+  opacity:0;
+  pointer-events:none;
+  transition:0.3s;
+  z-index:1300;
+}
+.popup.show{ opacity:1; pointer-events:auto; }
+
+/* login box */
+.login-box{
+  background:var(--white);
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 4px 14px rgba(0,0,0,0.14);
+  width:90%;
+  margin:20px auto;
+}
+.auth-btn{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  background:var(--raspberry);
+  color:#fff;
+  font-size:16px;
+  margin-top:12px;
+}
+.auth-btn.secondary{ background:var(--navy); }
+
+/* checkout box */
+.checkout-box{
+  background:var(--white);
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.12);
+  width:92%;
+  margin:8px auto;
 }
 
-/* ----------- CONTACT CARD ----------- */
-.contact-card {
-    background: #1b2a52;
-    color: white;
+/* footer */
+footer{
+  text-align:center;
+  padding:18px;
+  background:var(--navy);
+  color:var(--soft-pink);
+  margin-top:auto;
 }
 
-.contact-card a {
-    color: #ff7bac;
-    font-size: 18px;
-}
-
-/* ----------- SHOP ITEMS ----------- */
-.shop-item {
-    border-radius: 16px;
-    padding: 20px;
-    background: #ffffffcc;
-    margin-bottom: 20px;
-}
-
-.shop-item button {
-    background: #ff7bac;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    margin-top: 10px;
-    border-radius: 12px;
-    cursor: pointer;
-}
-
-/* ----------- FOOTER ----------- */
-footer {
-    text-align: center;
-    padding: 20px;
-    background: #1b2a52;
-    color: #ffbad7;
-    margin-top: 40px;
-}
-
-/* ----------- TABLET ----------- */
-@media (min-width: 600px) {
-    nav {
-        width: 40%;
-        right: -40%;
-    }
-}
-
-/* ----------- DESKTOP ----------- */
-@media (min-width: 900px) {
-    .burger {
-        display: none;
-    }
-
-    nav {
-        position: static;
-        display: flex;
-        height: auto;
-        width: auto;
-        background: none;
-        padding: 0;
-        right: 0;
-    }
-
-    nav a {
-        padding: 0 15px;
-        color: #ffbad7;
-        font-size: 22px;
-    }
-}
+/* small helpers */
+.small-note{ font-size:13px; color: #7b6a78; text-align:center; margin-top:6px; }
+.row{ display:flex; gap:10px; }
+.row .col{ flex:1; }
+.center{ text-align:center; }
 </style>
 </head>
 <body>
 
-<header>
+<div class="container">
+
+  <!-- overlay -->
+  <div id="overlay" class="overlay" onclick="closeMenu()"></div>
+
+  <!-- mobile menu -->
+  <div id="mobileMenu" class="mobile-menu" aria-hidden="true">
+    <a onclick="onMenuClick('home')">Home</a>
+    <a onclick="onMenuClick('shop')">SHOP</a>
+    <div class="mobile-sub">
+      <a onclick="onMenuClick('customize')">— Customize</a>
+    </div>
+    <a onclick="onMenuClick('cart')">Cart</a>
+    <a onclick="onMenuClick('checkout')">Checkout</a>
+    <a onclick="onMenuClick('login')">Login</a>
+    <a onclick="onMenuClick('contacts')">Contacts</a>
+  </div>
+
+  <!-- NAV -->
+  <nav>
     <div class="logo">Plenēra</div>
 
-    <div class="burger" onclick="toggleMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
+    <div class="right-menu">
+      <a onclick="showSection('home')">Home</a>
+      <a onclick="showSection('shop')">Shop</a>
+      <a onclick="showSection('customize')">Customize</a>
+      <a onclick="showSection('cart')">Cart</a>
+      <a onclick="showSection('checkout')">Checkout</a>
+      <a onclick="showSection('contacts')">Contacts</a>
+      <div id="navUser" class="user-badge" title="Account"></div>
+      <span id="navCartBadge" class="cart-badge" style="display:none">0</span>
     </div>
 
-    <nav id="menu">
-        <a href="#home">Home</a>
-        <a href="#shop">Shop</a>
-        <a href="#account">Account</a>
-        <a href="#contacts">Contacts</a>
-    </nav>
-</header>
+    <div class="burger" onclick="toggleMenu()" aria-label="Open menu" title="Menu">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
 
-<!-- HOME -->
-<section id="home" class="section">
+  <!-- POPUP -->
+  <div id="popup" class="popup"></div>
+
+  <!-- SECTIONS -->
+  <!-- HOME -->
+  <section id="home" class="active">
     <h1>Welcome to Plenēra</h1>
-    <div class="card">
-        <p>Beautiful planners and elegant tools for your daily life ✨</p>
+    <p class="small-note">Handmade planners, elegant designs, fully customizable.</p>
+  </section>
+
+  <!-- LOGIN -->
+  <section id="login">
+    <h1>Account</h1>
+    <div class="login-box">
+      <input id="auth-email" type="email" placeholder="Email" style="padding:10px;border-radius:8px;border:none;background:var(--soft-pink);width:100%;">
+      <input id="auth-pass" type="password" placeholder="Password" style="padding:10px;border-radius:8px;border:none;background:var(--soft-pink);width:100%;margin-top:10px;">
+      <button class="auth-btn" onclick="doLogin()">Sign In</button>
+      <button class="auth-btn secondary" onclick="doSignup()">Create account</button>
+      <p class="small-note">Account data хранится локально (без сервера) — достаточно для демо и сохранения корзины.</p>
     </div>
-</section>
+  </section>
 
-<!-- SHOP -->
-<section id="shop" class="section">
-    <h2>Shop</h2>
+  <!-- SHOP -->
+  <section id="shop">
+    <h1>SHOP</h1>
 
-    <div class="card shop-item">
-        <h3>Premium Planner</h3>
-        <p>Elegant soft-cover planner.</p>
-        <button>Add to Cart</button>
+    <div class="product">
+      <h3>Basic Planner — 9.99€</h3>
+      <p class="small-note">Soft paper, simple minimalistic cover.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" onclick="addSimpleProduct('Basic Planner',9.99)">Add to cart</button>
+      </div>
     </div>
 
-    <div class="card shop-item">
-        <h3>Sticker Pack</h3>
-        <p>Cute stickers for journaling.</p>
-        <button>Add to Cart</button>
+    <div class="product">
+      <h3>Premium Planner — 12.99€</h3>
+      <p class="small-note">Thicker paper, ribbon bookmark, pastel cover.</p>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" onclick="addSimpleProduct('Premium Planner',12.99)">Add to cart</button>
+      </div>
     </div>
-</section>
 
-<!-- ACCOUNT -->
-<section id="account" class="section">
-    <h2>Your Account</h2>
-    <div class="card">
-        <p id="account-status">Checking login...</p>
-        <button onclick="login()" style="
-            background:#ff7bac; 
-            color:white; 
-            padding:12px 22px; 
-            border:none; 
-            border-radius:12px; 
-            font-size:18px;
-        ">Log In</button>
+    <div style="text-align:center; margin-top:6px">
+      <button class="primary" onclick="showSection('customize')">Customize your planner →</button>
     </div>
-</section>
+  </section>
 
-<!-- CONTACTS -->
-<section id="contacts" class="section">
-    <div class="card contact-card">
-        <h2>Contact Us</h2>
-        <p><strong>Email:</strong></p>
-        <a href="mailto:Plenera.planotajs@gmail.com">Plenera.planotajs@gmail.com</a>
+  <!-- CUSTOMIZE -->
+  <section id="customize">
+    <h1>Create Your Planner</h1>
+
+    <div class="options">
+      <div class="option">
+        Page color
+        <select id="pageColorSelect">
+          <option value="White">White</option>
+          <option value="Cream">Cream</option>
+          <option value="Soft Pink">Soft Pink</option>
+        </select>
+      </div>
+
+      <div class="option">
+        Cover design
+        <select id="coverSelect">
+          <option value="Marble">Marble</option>
+          <option value="Minimalistic">Minimalistic</option>
+          <option value="Pastel Art">Pastel Art</option>
+        </select>
+      </div>
+
+      <div class="option">
+        Months
+        <select id="monthsSelect">
+          <option value="3 months">3 months</option>
+          <option value="6 months">6 months</option>
+        </select>
+      </div>
+
+      <div class="option">
+        Stickers
+        <select id="stickerSelect">
+          <option value="With stickers">With stickers</option>
+          <option value="Without stickers">Without stickers</option>
+        </select>
+      </div>
+
+      <div class="option">
+        Pen
+        <select id="penSelect">
+          <option value="With pen">With pen</option>
+          <option value="Without pen">Without pen</option>
+        </select>
+      </div>
+
     </div>
-</section>
 
-<footer>
-    © 2025 Plenēra. All rights reserved.
-</footer>
+    <button class="primary" onclick="addCustomPlanner()">Add to Cart</button>
+  </section>
+
+  <!-- CART -->
+  <section id="cart">
+    <h1>Your Cart</h1>
+    <ul id="cart-items"></ul>
+    <h2 class="center">Total: <span id="total-price">0.00</span>€</h2>
+    <div style="text-align:center;">
+      <button class="primary" onclick="goCheckout()">Proceed to Checkout</button>
+    </div>
+  </section>
+
+  <!-- CHECKOUT -->
+  <section id="checkout">
+    <h1>Checkout</h1>
+
+    <div class="checkout-box">
+      <input id="co-name" type="text" placeholder="Full name" style="padding:10px;border-radius:8px;border:none;background:var(--soft-pink);width:100%;">
+      <input id="co-address" type="text" placeholder="Address" style="padding:10px;border-radius:8px;border:none;background:var(--soft-pink);width:100%;margin-top:8px;">
+      <input id="co-phone" type="tel" placeholder="Phone number" style="padding:10px;border-radius:8px;border:none;background:var(--soft-pink);width:100%;margin-top:8px;">
+      <input id="co-email" type="email" placeholder="Email" style="padding:10px;border-radius:8px;border:none;background:var(--soft-pink);width:100%;margin-top:8px;">
+      <div style="margin-top:12px; font-weight:600">Payment</div>
+      <select id="co-payment" style="margin-top:8px;">
+        <option>Card</option>
+        <option>PayPal</option>
+        <option>Cash on delivery</option>
+      </select>
+
+      <div style="margin-top:12px; font-size:15px;">
+        <strong>Total: <span id="checkout-total">0.00</span>€</strong>
+      </div>
+
+      <button class="primary" style="margin-top:14px" onclick="finishOrder()">Confirm Order</button>
+    </div>
+  </section>
+
+  <!-- CONTACTS -->
+  <section id="contacts">
+    <h1>Contacts</h1>
+    <div class="option" style="text-align:center;">
+      <p style="margin:0">Email:</p>
+      <p style="margin:6px 0"><a href="mailto:Plenera.planotajs@gmail.com" style="color:var(--navy); font-weight:600">Plenera.planotajs@gmail.com</a></p>
+    </div>
+  </section>
+
+  <footer>© 2025 Plenēra. All rights reserved.</footer>
+</div>
 
 <script>
-function toggleMenu() {
-    document.getElementById("menu").classList.toggle("open");
+/* ==== App state and helpers ==== */
+const mobileMenu = document.getElementById('mobileMenu');
+const overlay = document.getElementById('overlay');
+const popupEl = document.getElementById('popup');
+const navCartBadge = document.getElementById('navCartBadge');
+const navUser = document.getElementById('navUser');
+
+let cart = JSON.parse(localStorage.getItem('plenera_cart') || '[]');
+let user = JSON.parse(localStorage.getItem('plenera_user') || 'null');
+let orders = JSON.parse(localStorage.getItem('plenera_orders') || '[]');
+
+/* ==== UI init ==== */
+updateCartUI();
+updateUserUI();
+
+/* ==== MENU functions ==== */
+function toggleMenu(){
+  mobileMenu.classList.toggle('open');
+  overlay.classList.toggle('show');
 }
 
-function login() {
-    let email = prompt("Enter email:");
-    let password = prompt("Enter password:");
-
-    if (!email || !password) {
-        alert("Please fill all fields");
-        return;
-    }
-
-    localStorage.setItem("userEmail", email);
-    document.getElementById("account-status").innerText =
-        "You are logged in as: " + email;
+function closeMenu(){
+  mobileMenu.classList.remove('open');
+  overlay.classList.remove('show');
 }
 
-function checkLogin() {
-    let saved = localStorage.getItem("userEmail");
-    if (saved) {
-        document.getElementById("account-status").innerText =
-            "You are logged in as: " + saved;
-    } else {
-        document.getElementById("account-status").innerText =
-            "You are not logged in.";
-    }
+function onMenuClick(sectionId){
+  showSection(sectionId);
+  closeMenu();
 }
 
-window.onload = checkLogin;
+/* ==== Sections navigation ==== */
+function showSection(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+
+  // when opening checkout, refresh total and prefill
+  if(id === 'checkout'){
+    document.getElementById('checkout-total').innerText = document.getElementById('total-price').innerText;
+    prefillCheckoutIfUser();
+  }
+}
+
+/* ==== Popup ==== */
+function showPopup(text){
+  popupEl.innerText = text;
+  popupEl.classList.add('show');
+  setTimeout(()=>popupEl.classList.remove('show'), 2200);
+}
+
+/* ==== AUTH ==== */
+function doSignup(){
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value.trim();
+  if(!email || !pass){ alert('Please fill email and password'); return; }
+  // simple store (demo only)
+  user = { email, pass, name: email.split('@')[0] };
+  localStorage.setItem('plenera_user', JSON.stringify(user));
+  updateUserUI();
+  showPopup('Account created & logged in');
+  showSection('home');
+}
+
+function doLogin(){
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value.trim();
+  const stored = JSON.parse(localStorage.getItem('plenera_user') || 'null');
+  if(!stored || stored.email !== email || stored.pass !== pass){
+    alert('Account not found or wrong password');
+    return;
+  }
+  user = stored;
+  updateUserUI();
+  showPopup('Logged in');
+  showSection('home');
+}
+
+function doLogout(){
+  user = null;
+  localStorage.removeItem('plenera_user');
+  updateUserUI();
+  showPopup('Logged out');
+}
+
+/* show user in nav */
+function updateUserUI(){
+  if(user){
+    navUser.innerHTML = `👤 ${escapeHtml(user.name)} <span style="font-size:12px;opacity:0.8;">(logout)</span>`;
+    navUser.style.cursor = 'pointer';
+    navUser.onclick = ()=>{ if(confirm('Logout?')) doLogout(); }
+  } else {
+    navUser.innerText = '';
+    navUser.onclick = null;
+  }
+}
+
+/* ==== CART functions ==== */
+function saveCart(){
+  localStorage.setItem('plenera_cart', JSON.stringify(cart));
+  updateCartUI();
+}
+
+function addSimpleProduct(name, price){
+  cart.push({ name, price, type:'product' });
+  saveCart();
+  showPopup('Added to cart');
+}
+
+function addCustomPlanner(){
+  const item = {
+    name:'Custom Planner',
+    page: document.getElementById('pageColorSelect').value,
+    cover: document.getElementById('coverSelect').value,
+    months: document.getElementById('monthsSelect').value,
+    stickers: document.getElementById('stickerSelect').value,
+    pen: document.getElementById('penSelect').value,
+    price: 12.99,
+    type:'custom'
+  };
+  cart.push(item);
+  saveCart();
+  showPopup('Custom planner added');
+}
+
+function updateCartUI(){
+  const list = document.getElementById('cart-items');
+  const totalEl = document.getElementById('total-price');
+  list.innerHTML = '';
+  let sum = 0;
+
+  cart.forEach((it, idx)=>{
+    sum += Number(it.price || 0);
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>${escapeHtml(it.name)}</strong><br>
+      ${it.page ? 'Page: '+escapeHtml(it.page)+'<br>': ''}
+      ${it.cover ? 'Cover: '+escapeHtml(it.cover)+'<br>': ''}
+      ${it.months ? 'Months: '+escapeHtml(it.months)+'<br>': ''}
+      <strong>${Number(it.price).toFixed(2)}€</strong>
+      <div style="margin-top:8px;">
+        <button style="padding:8px 10px;border-radius:8px;border:none;cursor:pointer;background:var(--raspberry);color:white" onclick="removeFromCart(${idx})">Remove</button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+
+  totalEl.innerText = sum.toFixed(2);
+  document.getElementById('checkout-total').innerText = sum.toFixed(2);
+
+  // badge
+  if(cart.length>0){
+    navCartBadge.style.display='inline-block';
+    navCartBadge.innerText = cart.length;
+  } else {
+    navCartBadge.style.display='none';
+  }
+}
+
+function removeFromCart(index){
+  if(index>=0 && index < cart.length){
+    cart.splice(index,1);
+    saveCart();
+    showPopup('Removed from cart');
+  }
+}
+
+function goCheckout(){
+  if(cart.length === 0){ alert('Your cart is empty'); return; }
+  showSection('checkout');
+}
+
+/* ==== ORDER flow ==== */
+function prefillCheckoutIfUser(){
+  if(user){
+    document.getElementById('co-email').value = user.email || '';
+    document.getElementById('co-name').value = user.name || '';
+  } else {
+    // if no user, try to keep previous values (no action)
+  }
+}
+
+/* finish order */
+function finishOrder(){
+  const name = document.getElementById('co-name').value.trim();
+  const address = document.getElementById('co-address').value.trim();
+  const phone = document.getElementById('co-phone').value.trim();
+  const email = document.getElementById('co-email').value.trim();
+  if(!name || !address || !phone || !email){
+    alert('Please fill all checkout fields');
+    return;
+  }
+  if(cart.length === 0){
+    alert('Cart is empty');
+    return;
+  }
+
+  const total = Number(document.getElementById('total-price').innerText) || 0;
+  const order = {
+    id: 'ORD' + Date.now(),
+    date: new Date().toISOString(),
+    name, address, phone, email, total, items: cart.slice()
+  };
+
+  orders.push(order);
+  localStorage.setItem('plenera_orders', JSON.stringify(orders));
+  cart = [];
+  saveCart();
+  showPopup('Order confirmed! Thank you ❤️');
+  showSection('home');
+
+  // optionally: show order summary (simple)
+  setTimeout(()=> alert('Order '+order.id+' placed. Total: '+order.total.toFixed(2)+'€'), 300);
+}
+
+/* ==== small util ==== */
+function escapeHtml(s){
+  if(!s) return '';
+  return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]; });
+}
+
+/* ==== keyboard closing for menu (escape) ==== */
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape') closeMenu();
+});
+
+/* ensure UI loads */
+(function init(){
+  // attach overlay click already above
+  // open home
+  showSection('home');
+})();
 </script>
-
 </body>
 </html>
